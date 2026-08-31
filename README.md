@@ -29,3 +29,15 @@ System Requirements
     Python 3.10 or later
 
     Sudo administrative access (for Linux netns and iproute2 manipulation)
+
+Key Technical Highlights
+
+    Zero Virtualization Overhead: Built entirely with native Linux network namespaces (ip netns) and virtual Ethernet pairs (veth), allowing microsecond-accurate benchmarking with zero VM hypervisor jitter.
+
+    Granular DiffServ Classification: Uses kernel-level u32 traffic classifiers matching against the IP Type of Service (ToS) / DSCP octet.
+
+    Hierarchical Bandwidth Guarantees: Enforces parent-child HTB scheduling classes to ensure dedicated minimum rates (rate) while enabling burst borrowing up to link capacity (ceil).
+
+    Active Queue Management (AQM): Couples leaf queues with fq_codel to neutralize bufferbloat, isolate micro-bursts, and maintain sub-millisecond queuing delay for high-priority traffic.
+
+    Fully Automated Benchmarking Suite: Single-command orchestrator automating iperf3 multi-port daemon provisioning, concurrent flow transmission, JSON metric aggregation, and Matplotlib chart generation.
