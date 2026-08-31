@@ -3,15 +3,15 @@ The system handles mixed voice, video, and bulk data traffic and prioritizes eac
 
 The performance of the network is evaluated with and without QoS based on latency, jitter, packet loss, and throughput.
 Technologies Used
-Linux
-Linux tc
-HTB
-FQ-CoDel
-iperf3
-D-ITG
-Wireshark
-Bash
-Python
+*Linux
+*Linux tc
+*HTB
+*FQ-CoDel
+*iperf3
+*D-ITG
+*Wireshark
+*Bash
+*Python
 The experiment is expected to demonstrate that DiffServ QoS with HTB and FQ-CoDel can provide preferential treatment to delay-sensitive traffic during congestion.
 
 Expected improvements include:
