@@ -1,26 +1,19 @@
 DiffServ QoS Traffic-Shaping Testbed with Per-Class Latency/Jitter Benchmarking
-The system handles mixed voice, video, and bulk data traffic and prioritizes each traffic class using DSCP classification, HTB (Hierarchical Token Bucket), and FQ-CoDel.
+A network traffic-shaping testbed engineered with Linux Traffic Control (tc), Hierarchical Token Bucket (HTB), and Fair Queueing CoDel (fq_codel). The testbed classifies mixed concurrent network flows (Voice, Video, and Bulk data) using Differentiated Services (DiffServ) DSCP bits and benchmarks per-class latency, jitter, and loss during bottleneck congestion.
+diffserv-qos-traffic-shaping/
+├── setup_topo.sh           # Builds 3-node netns topology and veth interface routing
+├── qos_engine.sh           # Manages kernel tc HTB trees, leaf AQMs, and u32 filters
+├── benchmark.py            # Concurrent traffic orchestrator and JSON KPI parser
+├── plot_kpis.py            # Generates comparative PNG bar charts via Matplotlib
+├── benchmark_results.json  # Raw measured JSON performance metrics
+├── kpi_comparison.png      # Rendered KPI benchmark charts
+├── requirements.txt        # Python dependency manifest
+└── README.md               # Engineering documentation and runbook
+Prerequisites & Installation
+System Requirements
 
-The performance of the network is evaluated with and without QoS based on latency, jitter, packet loss, and throughput.
-Technologies Used
-*Linux
-*Linux tc
-*HTB
-*FQ-CoDel
-*iperf3
-*D-ITG
-*Wireshark
-*Bash
-*Python
-The experiment is expected to demonstrate that DiffServ QoS with HTB and FQ-CoDel can provide preferential treatment to delay-sensitive traffic during congestion.
+    Ubuntu 20.04 / 22.04 / 24.04 LTS
 
-Expected improvements include:
+    Python 3.10 or later
 
-Reduced voice latency
-Reduced voice jitter
-Lower packet loss for priority traffic
-Improved video performance
-Controlled bandwidth usage
-Better utilization of network resources
-
-Bulk traffic may receive lower priority when the network is congested.
+    Sudo administrative access (for Linux netns and iproute2 manipulation)
