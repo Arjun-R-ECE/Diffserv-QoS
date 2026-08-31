@@ -1,0 +1,39 @@
+#!/bin/bash
+DEV="veth-rs"
+ROUTER_EXEC="ip netns exec router"
+
+apply_qos() {
+    echo "[*] Applying DiffServ HTB QoS on $DEV (Bottleneck: 10Mbps)..."
+    $ROUTER_EXEC tc qdisc del dev $DEV root 2>/dev/null
+    $ROUTER_EXEC tc qdisc add dev $DEV root handle 1: htb default 30
+    $ROUTER_EXEC tc class add dev $DEV parent 1: classid 1:1 htb rate 10mbit ceil 10mbit
+    
+    # Priority queues
+    $ROUTER_EXEC tc class add dev $DEV parent 1:1 classid 1:10 htb rate 3mbit ceil 10mbit prio 1
+    $ROUTER_EXEC tc class add dev $DEV parent 1:1 classid 1:20 htb rate 5mbit ceil 10mbit prio 2
+    $ROUTER_EXEC tc class add dev $DEV parent 1:1 classid 1:30 htb rate 2mbit ceil 10mbit prio 3
+    
+    # fq_codel active queue management
+    $ROUTER_EXEC tc qdisc add dev $DEV parent 1:10 handle 100: fq_codel
+    $ROUTER_EXEC tc qdisc add dev $DEV parent 1:20 handle 200: fq_codel
+    $ROUTER_EXEC tc qdisc add dev $DEV parent 1:30 handle 300: fq_codel
+    
+    # DSCP classification
+    $ROUTER_EXEC tc filter add dev $DEV parent 1: protocol ip prio 1 u32 match ip tos 0xb8 0xfc flowid 1:10
+    $ROUTER_EXEC tc filter add dev $DEV parent 1: protocol ip prio 2 u32 match ip tos 0x88 0xfc flowid 1:20
+    $ROUTER_EXEC tc filter add dev $DEV parent 1: protocol ip prio 3 u32 match ip tos 0x00 0xfc flowid 1:30
+    echo "[+] DiffServ QoS active."
+}
+
+remove_qos() {
+    echo "[*] Resetting to Baseline (FIFO mode with 10Mbps bottleneck)..."
+    $ROUTER_EXEC tc qdisc del dev $DEV root 2>/dev/null
+    $ROUTER_EXEC tc qdisc add dev $DEV root handle 1: tbf rate 10mbit burst 32kbit limit 300kbit
+    echo "[+] Baseline (No QoS) active."
+}
+
+case "$1" in
+    enable) apply_qos ;;
+    disable) remove_qos ;;
+    *) echo "Usage: $0 {enable|disable}"; exit 1 ;;
+esac
